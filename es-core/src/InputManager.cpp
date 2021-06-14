@@ -29,6 +29,9 @@
 int SDL_USER_CECBUTTONDOWN = -1;
 int SDL_USER_CECBUTTONUP   = -1;
 
+// save alt button status for Alt-F4 multi-button exit support
+static bool altDown = false;
+
 InputManager* InputManager::mInstance = NULL;
 
 InputManager::InputManager() : mKeyboardInputConfig(NULL)
@@ -237,6 +240,11 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		return true;
 
 	case SDL_KEYDOWN:
+		if (ev.key.keysym.sym == SDLK_LALT)
+		{
+			altDown = true;
+		}
+
 		if(ev.key.keysym.sym == SDLK_BACKSPACE && SDL_IsTextInputActive())
 		{
 			window->textInput("\b");
@@ -245,7 +253,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		if(ev.key.repeat)
 			return false;
 
-		if(ev.key.keysym.sym == SDLK_F4)
+		if(ev.key.keysym.sym == SDLK_F4 && altDown)
 		{
 			SDL_Event* quit = new SDL_Event();
 			quit->type = SDL_QUIT;
@@ -257,6 +265,10 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		return true;
 
 	case SDL_KEYUP:
+		if (ev.key.keysym.sym == SDLK_LALT)
+		{
+			altDown = false;
+		}
 		window->input(getInputConfigByDevice(DEVICE_KEYBOARD), Input(DEVICE_KEYBOARD, TYPE_KEY, ev.key.keysym.sym, 0, false));
 		return true;
 
