@@ -5,6 +5,7 @@
 #include "animations/LaunchAnimation.h"
 #include "animations/MoveCameraAnimation.h"
 #include "guis/GuiMenu.h"
+#include "guis/GuiUserSelect.h"
 #include "views/gamelist/DetailedGameListView.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/gamelist/GridGameListView.h"
@@ -372,6 +373,14 @@ bool ViewController::input(InputConfig* config, Input input)
 		mWindow->pushGui(new GuiMenu(mWindow));
 		return true;
 	}
+
+	// open user select
+    if(!(UIModeController::getInstance()->isUIModeKid() && Settings::getInstance()->getBool("DisableKidStartMenu")) && config->isMappedTo("hotKeyenable", input) && input.value != 0)
+    {
+        // open menu
+        mWindow->pushGui(new GuiUserSelect(mWindow));
+        return true;
+    }
 
 	if(UIModeController::getInstance()->listen(config, input))  // check if UI mode has changed due to passphrase completion
 	{
